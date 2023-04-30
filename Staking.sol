@@ -118,6 +118,7 @@ contract Staking is ReentrancyGuard {
         }
     }
 
+
     function getLatestFudeTokenPrice() public view returns (int256) {
         (, int256 price, , , ) = priceFeed.latestRoundData();
         return price;
