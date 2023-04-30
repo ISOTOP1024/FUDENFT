@@ -5,10 +5,10 @@ FudeNFT is an anonymous club NFT project designed to offer its members unique an
 # Architecture and Functionality
 The FudeNFT project consists of several interconnected smart contracts, including:
 
-FudeNFT.sol: An ERC-721 compatible smart contract for minting and managing NFTs with unique avatars and rarity.
-FudeToken.sol: An ERC-20 compatible smart contract for minting and managing the project's native token, FUDE.
-Staking.sol: A smart contract for staking FudeNFTs and earning FUDE tokens as rewards.
-DestructionVote.sol: A smart contract for voting on the destruction of specific NFTs using FUDE tokens.
+    FudeNFT.sol: An ERC-721 compatible smart contract for minting and managing NFTs with unique avatars and rarity.
+    FudeToken.sol: An ERC-20 compatible smart contract for minting and managing the project's native token, FUDE.
+    Staking.sol: A smart contract for staking FudeNFTs and earning FUDE tokens as rewards.
+    DestructionVote.sol: A smart contract for voting on the destruction of specific NFTs using FUDE tokens.
 
 # Purpose and Social Practice
 FudeNFT serves as a platform for a unique social experiment, where the club will organize various activities and events at uncertain times, providing its members with diverse life experiences in pursuit of life's meaning and value.
