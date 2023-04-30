@@ -2,65 +2,48 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/IBEP20.sol";
+import "@pancakeswap/pancake-swap-lib/contracts/token/BEP20/extensions/BEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract FudeToken is ERC20, Ownable {
+contract FudeToken is BEP20, Ownable {
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 public constant TOTAL_SUPPLY = 100000000 * 10**18;
-    uint256 public constant TARGET_PRICE = 1000 * 10**18;
-    uint256 public constant PERCENTAGE_CHANGE = 1;
+    EnumerableSet.AddressSet private _frozenAccounts;
 
-    AggregatorV3Interface internal priceFeed;
-
-    mapping(address => bool) private _frozenAccounts;
-
-    event FrozenFunds(address target, bool frozen);
-
-    constructor(AggregatorV3Interface _priceFeed) ERC20("FudeToken", "FUDE") {
-        _mint(msg.sender, TOTAL_SUPPLY);
-        priceFeed = _priceFeed;
+    constructor() BEP20("FudeToken", "FUDE") {
+        _mint(msg.sender, 100000000 * 10**decimals()); // Mint 100 million tokens to the deployer
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        uint256 adjustedAmount = adjustAmount(amount);
-        _mint(to, adjustedAmount);
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public onlyOwner {
+    function burn(address from, uint256 amount) external onlyOwner {
         _burn(from, amount);
     }
 
-    function freezeAccount(address target, bool freeze) public onlyOwner {
-        _frozenAccounts[target] = freeze;
-        emit FrozenFunds(target, freeze);
+    function freezeAccount(address account) external onlyOwner {
+        _frozenAccounts.add(account);
     }
 
-    function isFrozen(address target) public view returns (bool) {
-        return _frozenAccounts[target];
+    function unfreezeAccount(address account) external onlyOwner {
+        _frozenAccounts.remove(account);
     }
 
-    function getLatestPrice() public view returns (int) {
-        (, int price, , , ) = priceFeed.latestRoundData();
-        return price;
+    function isAccountFrozen(address account) public view returns (bool) {
+        return _frozenAccounts.contains(account);
     }
 
-/********************************************************************************
- *   function adjustAmount(uint256 amount) private view returns (uint256) {
- *       int price = getLatestPrice();
- *       if (price >= int(TARGET_PRICE)) {
- *           return amount.add(amount.mul(PERCENTAGE_CHANGE).div(10000));
- *       } else {
- *           return amount.sub(amount.mul(PERCENTAGE_CHANGE).div(10000));
- *       }
- *   }
- ********************************************************************************/
-
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
-        require(!_frozenAccounts[from], "ERC20: token transfer from a frozen address");
-        require(!_frozenAccounts[to], "ERC20: token transfer to a frozen address");
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
+
+        require(!isAccountFrozen(from), "Token transfer from a frozen account is not allowed");
+        require(!isAccountFrozen(to), "Token transfer to a frozen account is not allowed");
     }
+
+    // Any additional functionality specific to FudeToken should go here
 }
