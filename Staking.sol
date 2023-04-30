@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 
 contract Staking is ReentrancyGuard {
     using SafeMath for uint256;
@@ -28,9 +30,10 @@ contract Staking is ReentrancyGuard {
     event Unstaked(address indexed staker, uint256 tokenId);
     event Claimed(address indexed staker, uint256 tokenId, uint256 amount);
 
-    constructor(IERC721 _fudeNFT, IERC20 _fudeToken) {
+    constructor(IERC721 _fudeNFT, IERC20 _fudeToken, AggregatorV3Interface _priceFeed) {
         fudeNFT = _fudeNFT;
         fudeToken = _fudeToken;
+        priceFeed = _priceFeed;
     }
 
     function stake(uint256 tokenId) external nonReentrant {
@@ -100,6 +103,23 @@ contract Staking is ReentrancyGuard {
         uint256 claimedRewards = getClaimedRewards(user, tokenId);
         uint256 unclaimedRewards = getUnclaimedRewards(user, tokenId);
        return claimedRewards.add(unclaimedRewards);
+    }
+    
+    function adjustedRewardPerMinute() public view returns (uint256) {
+        int256 latestPrice = getLatestFudeTokenPrice();
+        if (latestPrice > 10 * 10**18) {
+            uint256 priceIncrease = uint256(latestPrice - 10 * 10**18).div(10**18);
+            uint256 adjustmentFactor = priceIncrease.mul(1).div(10000); // 0.01% per 1 USDT increase
+            uint256 adjustedReward = BASE_REWARD_PER_MINUTE.mul(10000 + adjustmentFactor).div(10000);
+            return adjustedReward;
+        } else {
+            return BASE_REWARD_PER_MINUTE;
+        }
+    }
+
+    function getLatestFudeTokenPrice() public view returns (int256) {
+        (, int256 price, , , ) = priceFeed.latestRoundData();
+        return price;
     }
 
 }
