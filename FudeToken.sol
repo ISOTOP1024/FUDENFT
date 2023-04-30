@@ -47,14 +47,16 @@ contract FudeToken is ERC20, Ownable {
         return price;
     }
 
-    function adjustAmount(uint256 amount) private view returns (uint256) {
-        int price = getLatestPrice();
-        if (price >= int(TARGET_PRICE)) {
-            return amount.add(amount.mul(PERCENTAGE_CHANGE).div(10000));
-        } else {
-            return amount.sub(amount.mul(PERCENTAGE_CHANGE).div(10000));
-        }
-    }
+/********************************************************************************
+ *   function adjustAmount(uint256 amount) private view returns (uint256) {
+ *       int price = getLatestPrice();
+ *       if (price >= int(TARGET_PRICE)) {
+ *           return amount.add(amount.mul(PERCENTAGE_CHANGE).div(10000));
+ *       } else {
+ *           return amount.sub(amount.mul(PERCENTAGE_CHANGE).div(10000));
+ *       }
+ *   }
+ ********************************************************************************/
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
         require(!_frozenAccounts[from], "ERC20: token transfer from a frozen address");
