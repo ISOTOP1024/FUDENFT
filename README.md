@@ -2,6 +2,11 @@
 FudeNFT Project
 FudeNFT is an anonymous club NFT project designed to offer its members unique and exclusive life experiences, while exploring the meaning and value of life through a series of social events and interactions.
 
+# Requirement
+1. npm install @chainlink/contracts
+2. npm install @pancakeswap/pancake-swap-lib
+
+
 # Architecture and Functionality
 The FudeNFT project consists of several interconnected smart contracts, including:
 
