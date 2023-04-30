@@ -84,6 +84,29 @@ contract Staking is ReentrancyGuard {
         }
         uint256 timeStaked = block.timestamp.sub(stakeInfo.stakeTimestamp);
         uint256 minutesStaked = timeStaked.div(60);
+    
+        uint256 totalRewards;
+        if (totalStakedNFTs < 10) {
+           uint256 dailyOutput = 10 * 10**18;
+           totalRewards = dailyOutput.mul(minutesStaked).div(MINUTES_IN_DAY);
+        } else {
+           totalRewards = REWARD_PER_MINUTE.mul(minutesStaked);
+        }
+    
+        uint256 userRewards = totalRewards.mul(1).div(totalStakedNFTs);
+        uint256 pendingReward = userRewards.sub(stakeInfo.claimedRewards);
+        return pendingReward;
+    }
+
+
+/******
+    function calculateReward(address user, uint256 tokenId) public view returns (uint256) {
+        StakeInfo memory stakeInfo = stakes[user][tokenId];
+        if (stakeInfo.stakeTimestamp == 0) {
+            return 0;
+        }
+        uint256 timeStaked = block.timestamp.sub(stakeInfo.stakeTimestamp);
+        uint256 minutesStaked = timeStaked.div(60);
         uint256 totalRewards = REWARD_PER_MINUTE.mul(minutesStaked);
         uint256 userRewards = totalRewards.mul(1).div(totalStakedNFTs);
 
@@ -91,7 +114,8 @@ contract Staking is ReentrancyGuard {
 
         return pendingReward;
     }
-    
+******/
+
     function getClaimedRewards(address user, uint256 tokenId) public view returns (uint256) {
         return stakes[user][tokenId].claimedRewards;
     }
