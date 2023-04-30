@@ -87,6 +87,21 @@ contract Staking is ReentrancyGuard {
 
         return pendingReward;
     }
+    
+    function getClaimedRewards(address user, uint256 tokenId) public view returns (uint256) {
+    return stakes[user][tokenId].claimedRewards;
+}
+
+function getUnclaimedRewards(address user, uint256 tokenId) public view returns (uint256) {
+    return calculateReward(user, tokenId);
+}
+
+function getTotalRewards(address user, uint256 tokenId) public view returns (uint256) {
+    uint256 claimedRewards = getClaimedRewards(user, tokenId);
+    uint256 unclaimedRewards = getUnclaimedRewards(user, tokenId);
+    return claimedRewards.add(unclaimedRewards);
+}
+
 }
 
 
