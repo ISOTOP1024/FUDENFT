@@ -14,8 +14,9 @@ contract Staking is ReentrancyGuard {
 
     IERC721 public fudeNFT;
     IERC20 public fudeToken;
+    AggregatorV3Interface public priceFeed;
 
-    uint256 public constant REWARD_PER_MINUTE = 1000 * 10**18;
+    uint256 public constant BASE_REWARD_PER_MINUTE = 1000 * 10**18;
     uint256 public constant MINUTES_IN_DAY = 1440;
 
     struct StakeInfo {
